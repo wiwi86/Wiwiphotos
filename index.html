@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wiwiphotos — Galerie photo amateur</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&family=Jost:wght@200;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0F0F0F;
+      --bg2: #161616;
+      --border: #252525;
+      --text: #E8E4DC;
+      --muted: #666;
+      --accent: #C9A96E;
+      --white: #FAF9F7;
+      --font-display: 'Cormorant Garamond', serif;
+      --font-ui: 'Jost', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font-ui); font-weight: 200; overflow-x: hidden; }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 48px;
+      background: linear-gradient(to bottom, rgba(15,15,15,.95) 60%, transparent);
+      backdrop-filter: blur(2px);
+    }
+    .logo { font-family: var(--font-display); font-size: 26px; font-weight: 600; letter-spacing: .5px; color: var(--white); text-decoration: none; }
+    .logo span { color: var(--accent); font-style: italic; }
+    .nav-links { display: flex; gap: 36px; list-style: none; align-items: center; }
+    .nav-links a { font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: #ffffff; text-decoration: none; transition: color .25s; text-shadow: 0 1px 6px rgba(0,0,0,.8); }
+    .nav-links a:hover { color: var(--white); }
+    .nav-add-btn {
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      background: var(--accent); color: #000; border: none; cursor: pointer;
+      padding: 10px 20px; font-family: var(--font-ui); font-weight: 500;
+      transition: background .2s;
+    }
+    .nav-add-btn:hover { background: var(--white); }
+
+    /* HERO */
+    .hero {
+      position: relative; height: 100vh;
+      display: flex; align-items: flex-end;
+      padding: 0 48px 72px; overflow: hidden;
+    }
+    .hero-mosaic {
+      position: absolute; inset: 0;
+      display: grid;
+      grid-template-columns: 1.4fr .8fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 3px;
+    }
+    .hero-mosaic .tile { overflow: hidden; }
+    .hero-mosaic .tile:nth-child(1) { grid-row: span 2; }
+    .ph { display: block; background-size: cover; background-position: center; width: 100%; height: 100%; }
+    .ph1  { background-image: url('https://res.cloudinary.com/deoo3t2nw/image/upload/v1780748603/B9554C02-F4B8-4D18-9CB5-3C9495A60282_jfzcqt.png'); }
+    .ph2  { background-image: url('https://res.cloudinary.com/deoo3t2nw/image/upload/v1780748602/FEA05787-7043-445A-B85C-09A9B9367739_pfajd1.jpg'); }
+    .ph3  { background-image: url('https://res.cloudinary.com/deoo3t2nw/image/upload/v1780748602/0CA1761D-07F3-4D75-A43B-ED785365CE8C_np0uhq.jpg'); }
+    .ph4  { background-image: url('https://res.cloudinary.com/deoo3t2nw/image/upload/v1780748602/3AC2A270-F71A-49A3-A120-C627FB61A3BD_rvslsm.png'); }
+    .ph5  { background-image: url('https://res.cloudinary.com/deoo3t2nw/image/upload/v1780747074/F338DC48-BF52-4F70-9E15-1931DB45E725_ltlr1i.png'); }
+    .hero-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(8,8,8,.95) 0%, rgba(8,8,8,.6) 50%, rgba(8,8,8,.7) 100%); }
+    .hero-content { position: relative; z-index: 2; }
+    .hero-eyebrow { font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: #fff; margin-bottom: 16px; text-shadow: 0 1px 8px rgba(0,0,0,1); }
+    .hero-title { font-family: var(--font-display); font-size: clamp(48px, 7vw, 110px); font-weight: 300; line-height: 1; color: #ffffff; text-shadow: 0 2px 24px rgba(0,0,0,1), 0 0 60px rgba(0,0,0,.9); }
+    .hero-title em { font-style: italic; color: #F0D090; text-shadow: 0 2px 24px rgba(0,0,0,1); }
+    .hero-sub { margin-top: 24px; font-size: 13px; color: #ffffff; letter-spacing: .3px; max-width: 420px; line-height: 1.9; text-shadow: 0 1px 10px rgba(0,0,0,1), 0 0 20px rgba(0,0,0,1); }
+    .hero-cta { margin-top: 36px; }
+    .btn { font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; text-decoration: none; padding: 14px 30px; transition: all .25s; display: inline-block; }
+    .btn-gold { background: var(--accent); color: #000; font-weight: 500; border: none; cursor: pointer; font-family: var(--font-ui); }
+    .btn-gold:hover { background: var(--white); }
+
+    /* INTRO */
+    .intro { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 80px 48px; text-align: center; }
+    .intro-inner { max-width: 720px; margin: 0 auto; }
+    .intro-title { font-family: var(--font-display); font-size: clamp(36px, 5vw, 62px); font-weight: 300; letter-spacing: 1px; color: var(--white); margin-bottom: 28px; }
+    .intro-divider { width: 60px; height: 1px; background: var(--accent); margin: 0 auto 36px; }
+    .intro-text { font-size: 15px; line-height: 2; color: rgba(232,228,220,.65); margin-bottom: 18px; }
+    .intro-text em { font-style: italic; color: var(--accent); font-family: var(--font-display); font-size: 17px; }
+
+    /* FILTER BAR */
+    .filter-bar {
+      position: sticky; top: 66px; z-index: 100;
+      background: rgba(15,15,15,.92); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 48px;
+      display: flex; gap: 0; align-items: center;
+      overflow-x: auto;
+    }
+    .filter-bar::-webkit-scrollbar { display: none; }
+    .filter-btn {
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted); padding: 18px 24px;
+      border: none; background: none; cursor: pointer;
+      white-space: nowrap; border-bottom: 2px solid transparent;
+      transition: color .2s, border-color .2s; font-family: var(--font-ui);
+    }
+    .filter-btn.active, .filter-btn:hover { color: var(--white); border-bottom-color: var(--accent); }
+
+    /* GALLERY */
+    #gallery { padding: 60px 48px 100px; }
+
+    .gallery-empty {
+      text-align: center; padding: 80px 20px;
+      color: var(--muted); display: none;
+    }
+    .gallery-empty.visible { display: block; }
+    .gallery-empty svg { margin-bottom: 20px; opacity: .3; }
+    .gallery-empty p { font-size: 14px; line-height: 2; }
+    .gallery-empty .hint { font-size: 12px; margin-top: 12px; color: var(--accent); letter-spacing: 1px; cursor: pointer; }
+
+    .gallery-masonry { columns: 4; column-gap: 8px; }
+    @media (max-width: 1200px) { .gallery-masonry { columns: 3; } }
+    @media (max-width: 800px)  { .gallery-masonry { columns: 2; } }
+    @media (max-width: 500px)  { .gallery-masonry { columns: 1; } }
+
+    .photo-card {
+      break-inside: avoid; margin-bottom: 8px;
+      position: relative; overflow: hidden; cursor: pointer; display: block;
+    }
+    .photo-card .card-img {
+      width: 100%; display: block;
+      transition: transform .6s cubic-bezier(.16,1,.3,1), filter .4s;
+      filter: brightness(.92) saturate(.9);
+    }
+    .photo-card:nth-child(3n+1) .card-img { aspect-ratio: 3/4; object-fit: cover; }
+    .photo-card:nth-child(3n+2) .card-img { aspect-ratio: 4/3; object-fit: cover; }
+    .photo-card:nth-child(3n)   .card-img { aspect-ratio: 1/1; object-fit: cover; }
+    .photo-card:hover .card-img { transform: scale(1.04); filter: brightness(1) saturate(1.05); }
+
+    .photo-info {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(10,10,10,.85) 0%, transparent 55%);
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 18px; opacity: 0; transition: opacity .35s;
+    }
+    .photo-card:hover .photo-info { opacity: 1; }
+    .photo-author { font-size: 11px; letter-spacing: 1.5px; color: var(--accent); text-transform: uppercase; margin-bottom: 4px; }
+    .photo-title { font-family: var(--font-display); font-size: 20px; font-weight: 300; color: var(--white); line-height: 1.2; }
+    .photo-tag-label { margin-top: 8px; font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: rgba(232,228,220,.4); }
+
+    .photo-delete {
+      position: absolute; top: 10px; right: 10px;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(15,15,15,.75); backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,.15);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; opacity: 1; transition: background .2s;
+      color: rgba(255,255,255,.6); font-size: 14px; line-height: 1;
+    }
+    .photo-delete:hover, .photo-delete:active { background: rgba(200,50,50,.8); color: #fff; }
+
+    /* UPLOAD MODAL */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(8,8,8,.92); backdrop-filter: blur(16px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity .3s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--bg2); border: 1px solid var(--border);
+      width: 90%; max-width: 560px;
+      padding: 48px; position: relative;
+      transform: translateY(20px); transition: transform .3s;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal-close {
+      position: absolute; top: 20px; right: 24px;
+      background: none; border: none; color: var(--muted);
+      font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      cursor: pointer; font-family: var(--font-ui); transition: color .2s;
+    }
+    .modal-close:hover { color: var(--white); }
+    .modal h3 {
+      font-family: var(--font-display); font-size: 36px; font-weight: 300;
+      color: var(--white); margin-bottom: 32px;
+    }
+    .modal h3 em { font-style: italic; color: var(--accent); }
+
+    /* Drop zone */
+    .drop-zone {
+      border: 1px dashed var(--border);
+      padding: 40px 20px; text-align: center;
+      cursor: pointer; transition: border-color .25s, background .25s;
+      margin-bottom: 24px; position: relative;
+    }
+    .drop-zone:hover, .drop-zone.dragover { border-color: var(--accent); background: rgba(201,169,110,.04); }
+    .drop-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+    .drop-zone svg { margin-bottom: 12px; opacity: .4; }
+    .drop-zone p { font-size: 13px; color: var(--muted); line-height: 1.8; }
+    .drop-zone p strong { color: var(--accent); font-weight: 400; }
+    .drop-zone .preview-thumb {
+      width: 100%; max-height: 200px; object-fit: cover;
+      display: none; margin-bottom: 8px;
+    }
+    .drop-zone.has-file .preview-thumb { display: block; }
+    .drop-zone.has-file .drop-hint { display: none; }
+
+    .form-row { margin-bottom: 20px; }
+    .form-label { font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 8px; }
+    .form-input, .form-select {
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); font-family: var(--font-ui); font-size: 14px; font-weight: 200;
+      padding: 12px 16px; outline: none; transition: border-color .2s;
+      appearance: none;
+    }
+    .form-input:focus, .form-select:focus { border-color: var(--accent); }
+    .form-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; cursor: pointer; }
+    .form-select option { background: var(--bg2); }
+
+    .upload-submit {
+      width: 100%; padding: 16px; background: var(--accent); color: #000;
+      border: none; cursor: pointer; font-family: var(--font-ui);
+      font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; font-weight: 500;
+      transition: background .2s; margin-top: 8px;
+    }
+    .upload-submit:hover { background: var(--white); }
+    .upload-submit:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+
+    /* LIGHTBOX */
+    .lightbox {
+      position: fixed; inset: 0; z-index: 600;
+      background: rgba(8,8,8,.97); backdrop-filter: blur(20px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity .35s;
+    }
+    .lightbox.open { opacity: 1; pointer-events: all; }
+    .lb-img { max-width: 88vw; max-height: 82vh; object-fit: contain; }
+    .lightbox-close { position: absolute; top: 28px; right: 36px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); cursor: pointer; border: none; background: none; font-family: var(--font-ui); transition: color .2s; }
+    .lightbox-close:hover { color: var(--white); }
+    .lb-prev, .lb-next { position: absolute; top: 50%; transform: translateY(-50%); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); cursor: pointer; border: none; background: none; transition: color .2s; padding: 20px; font-family: var(--font-ui); }
+    .lb-prev { left: 20px; } .lb-next { right: 20px; }
+    .lb-prev:hover, .lb-next:hover { color: var(--white); }
+    .lb-caption { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); text-align: center; white-space: nowrap; }
+    .lb-caption .photo-author { font-size: 10px; letter-spacing: 2px; color: var(--accent); margin-bottom: 4px; }
+    .lb-caption .photo-title { font-family: var(--font-display); font-size: 24px; color: var(--white); font-weight: 300; }
+
+    /* FOOTER */
+    footer { border-top: 1px solid var(--border); padding: 28px 48px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+    footer .logo { font-size: 20px; }
+    footer p { font-size: 12px; color: #ffffff; letter-spacing: .5px; font-weight: 500; }
+    .footer-links { display: flex; gap: 28px; }
+    .footer-links a { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #ffffff; text-decoration: none; transition: color .2s; font-weight: 500; }
+    .footer-links a:hover { color: var(--accent); }
+
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    @media (max-width: 700px) {
+      nav { padding: 18px 20px; }
+      .nav-links li:not(:last-child) { display: none; }
+      .hero { padding: 0 20px 60px; }
+      #gallery, footer { padding-left: 20px; padding-right: 20px; }
+      .filter-bar { padding: 0 10px; }
+      .intro { padding: 60px 24px; }
+      .modal { padding: 32px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div class="splash" id="splash">
+  <div class="splash-logo">Wiwi<em>photos</em></div>
+  <p class="splash-sub">Photographie amateur</p>
+  <div class="splash-line"></div>
+  <button class="splash-btn" onclick="enterSite()">Entrer</button>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo" id="logo-secret">Wiwi<span>photos</span></a>
+  <ul class="nav-links">
+    <li><a href="#gallery">Galerie</a></li>
+    <li><a href="#gallery">Entre ciel &amp; océan</a></li>
+    <li><a href="#gallery">Fleur en lumière</a></li>
+    <li><a href="#gallery">Instant animalier</a></li>
+    <li><button class="nav-add-btn" onclick="openModal()" style="display:none">+ Ajouter une photo</button></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-mosaic">
+    <div class="tile"><div class="ph ph1"></div></div>
+    <div class="tile"><div class="ph ph2"></div></div>
+    <div class="tile"><div class="ph ph3"></div></div>
+    <div class="tile"><div class="ph ph4"></div></div>
+    <div class="tile"><div class="ph ph5"></div></div>
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">Photographie amateur</p>
+    <h1 class="hero-title">Au fil des<br><em>horizons</em></h1>
+    <p class="hero-sub">Une fraction de seconde devenue souvenir, saisie à travers un objectif amateur et beaucoup de passion.</p>
+    <div class="hero-cta">
+      <a href="#gallery" class="btn btn-gold">Explorer la galerie</a>
+    </div>
+  </div>
+</section>
+
+<!-- INTRO -->
+<section class="intro reveal">
+  <div class="intro-inner">
+    <h2 class="intro-title">Capturer l'Instant</h2>
+    <div class="intro-divider"></div>
+    <p class="intro-text">Bienvenue sur mon site de photographie amateur. Ici, il s'agit de saisir l'instant avec simplicité, à travers le regard sincère de quelqu'un qui observe le monde sans artifice. Chaque image naît souvent d'un geste spontané : un moment capturé sur le vif, une lumière imprévue ou une émotion trop marquante pour disparaître.</p>
+    <p class="intro-text">Chaque cliché est un fragment de vie, un témoignage silencieux, une trace intime laissée sur le papier ou l'écran. C'est ce qui rend la photo amateur si touchante : elle est <em>vraie, libre, humaine.</em></p>
+  </div>
+</section>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <button class="filter-btn active" data-filter="all">Toutes</button>
+  <button class="filter-btn" data-filter="ciel-ocean">Entre ciel &amp; océan</button>
+  <button class="filter-btn" data-filter="fleur">Fleur en lumière</button>
+  <button class="filter-btn" data-filter="animalier">Instant animalier</button>
+</div>
+
+<!-- GALLERY -->
+<section id="gallery">
+  <div class="gallery-empty" id="gallery-empty">
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="10" width="40" height="30" rx="2" stroke="#C9A96E" stroke-width="1.5"/>
+      <circle cx="16" cy="20" r="4" stroke="#C9A96E" stroke-width="1.5"/>
+      <path d="M4 32l10-8 8 6 6-5 16 11" stroke="#C9A96E" stroke-width="1.5"/>
+    </svg>
+    <p>Aucune photo dans cette catégorie.<br>Soyez le premier à en ajouter !</p>
+    <p class="hint" onclick="openModal()" style="display:none">+ Ajouter une photo</p>
+  </div>
+  <div class="gallery-masonry" id="masonry"></div>
+</section>
+
+<!-- MUSIC PLAYER -->
+<button class="music-btn" id="music-btn" onclick="toggleMusic()" title="Musique">
+  <span class="music-icon">♪</span>
+</button>
+<div class="music-ripple" id="music-ripple"></div>
+<audio id="bg-music" loop>
+  <source src="https://cdn.pixabay.com/audio/2022/10/16/audio_1e6a3c0f18.mp3" type="audio/mpeg">
+</audio>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#" class="logo" id="logo-secret">Wiwi<span>photos</span></a>
+  <p>© 2026 — Photos personnelles, reproduction interdite</p>
+  <div class="footer-links">
+    <a href="#" onclick="openAbout(); return false;">À propos</a>
+    <a href="mailto:wiwilwu@gmail.com">Contact</a>
+  </div>
+</footer>
+
+
+<!-- ABOUT MODAL -->
+<div class="modal-overlay" id="about-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAbout()">✕ Fermer</button>
+    <h3>À propos de<br><em>Wiwiphotos</em></h3>
+    <p style="font-size:15px; line-height:2; color:rgba(232,228,220,.7); margin-top:16px;">
+      Wiwiphotos se consacre à l'art de la photographie amateur, alliant passion et expertise pour créer des images qui racontent des histoires. Chaque prise de vue est l'opportunité de transmettre une émotion ou une ambiance.
+    </p>
+  </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lb-close">✕ Fermer</button>
+  <button class="lb-prev" id="lb-prev">← Préc.</button>
+  <button class="lb-next" id="lb-next">Suiv. →</button>
+  <img class="lb-img" id="lb-img" src="" alt=""/>
+  <div class="lb-caption">
+    <div class="photo-author" id="lb-author"></div>
+    <div class="photo-title" id="lb-title"></div>
+  </div>
+</div>
+
+<!-- UPLOAD MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕ Fermer</button>
+    <h3>Ajouter une<br><em>photo</em></h3>
+
+    <div class="drop-zone" id="drop-zone">
+      <input type="file" id="file-input" accept="image/*" />
+      <div class="drop-hint">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><path d="M20 28V12M12 20l8-8 8 8" stroke="#C9A96E" stroke-width="1.5"/><path d="M6 32h28" stroke="#666" stroke-width="1"/></svg>
+        <p><strong>Cliquez ou glissez</strong> votre photo ici<br><span style="font-size:11px">JPG, PNG, WEBP — jusqu'à 20 Mo</span></p>
+      </div>
+      <img class="preview-thumb" id="preview-thumb" src="" alt="Aperçu"/>
+    </div>
+
+    <div class="form-row">
+      <label class="form-label" for="photo-title">Titre de la photo</label>
+      <input class="form-input" type="text" id="photo-title" placeholder="Ex : Aube sur les falaises…"/>
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="photo-author">Votre prénom (optionnel)</label>
+      <input class="form-input" type="text" id="photo-author" placeholder="Ex : Marie"/>
+    </div>
+    <div class="form-row">
+      <label class="form-label" for="photo-cat">Catégorie</label>
+      <select class="form-select" id="photo-cat">
+        <option value="ciel-ocean">Entre ciel &amp; océan</option>
+        <option value="fleur">Fleur en lumière</option>
+        <option value="animalier">Instant animalier</option>
+      </select>
+    </div>
+    <button class="upload-submit" id="upload-submit" onclick="addPhoto()" disabled>Publier dans la galerie</button>
+  </div>
+</div>
+
+<script>
+  // ── Config ──
+  const CLOUD_NAME = 'deoo3t2nw';
+  const UPLOAD_PRESET = 'aws68qu1';
+  const SUPABASE_URL = 'https://xbxuehkcfegtixqrzels.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_jqgT6B6LOJFRs75Y8P662A_ttRIU2FC';
+
+  const HEADERS = {
+    'apikey': SUPABASE_KEY,
+    'Authorization': 'Bearer ' + SUPABASE_KEY,
+    'Content-Type': 'application/json'
+  };
+
+  // ── State ──
+  let photos = [];
+  let activeFilter = 'all';
+  let currentIndex = 0;
+  let currentList = [];
+  let pendingFile = null;
+
+  const CAT_LABELS = {
+    'ciel-ocean': 'Entre ciel & océan',
+    'fleur': 'Fleur en lumière',
+    'animalier': 'Instant animalier'
+  };
+
+  // ── Supabase ──
+  async function loadPhotos() {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/photos?order=created_at.desc`, { headers: HEADERS });
+      if (!res.ok) throw new Error(res.status);
+      photos = await res.json();
+      renderGallery();
+    } catch(e) {
+      console.error('Erreur chargement:', e);
+      renderGallery();
+    }
+  }
+
+  async function savePhoto(photo) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/photos`, {
+      method: 'POST',
+      headers: { ...HEADERS, 'Prefer': 'return=minimal' },
+      body: JSON.stringify(photo)
+    });
+    if (!res.ok) throw new Error('Erreur Supabase: ' + res.status);
+  }
+
+  async function removePhoto(id) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/photos?id=eq.${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      headers: HEADERS
+    });
+    if (!res.ok) throw new Error('Erreur suppression: ' + res.status);
+  }
+
+  // ── Upload Modal ──
+  function openModal() {
+    const pwd = prompt('🔒 Mot de passe pour ajouter une photo :');
+    if (pwd === null) return;
+    if (pwd !== '@ALexines86100!') { alert('❌ Mot de passe incorrect.'); return; }
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    resetForm();
+  }
+  document.getElementById('modal-overlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeModal();
+  });
+
+  const fileInput = document.getElementById('file-input');
+  const dropZone = document.getElementById('drop-zone');
+  const previewThumb = document.getElementById('preview-thumb');
+  const submitBtn = document.getElementById('upload-submit');
+
+  fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault(); dropZone.classList.remove('dragover');
+    if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  });
+
+  function handleFile(file) {
+    if (!file || !file.type.startsWith('image/')) return;
+    pendingFile = file;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      previewThumb.src = ev.target.result;
+      dropZone.classList.add('has-file');
+      submitBtn.disabled = false;
+    };
+    reader.readAsDataURL(file);
+    if (!document.getElementById('photo-title').value) {
+      const name = file.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
+      document.getElementById('photo-title').value = name.charAt(0).toUpperCase() + name.slice(1);
+    }
+  }
+
+  function resetForm() {
+    pendingFile = null;
+    fileInput.value = '';
+    previewThumb.src = '';
+    dropZone.classList.remove('has-file', 'dragover');
+    document.getElementById('photo-title').value = '';
+    document.getElementById('photo-author').value = '';
+    document.getElementById('photo-cat').value = 'ciel-ocean';
+    submitBtn.disabled = true;
+  }
+
+  async function addPhoto() {
+    if (!pendingFile) return;
+    const btn = document.getElementById('upload-submit');
+    btn.disabled = true;
+    btn.textContent = 'Envoi en cours…';
+
+    const formData = new FormData();
+    formData.append('file', pendingFile);
+    formData.append('upload_preset', UPLOAD_PRESET);
+    formData.append('folder', 'wiwiphotos');
+
+    try {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+        method: 'POST', body: formData
+      });
+      if (!res.ok) throw new Error('Erreur Cloudinary : ' + res.status);
+      const data = await res.json();
+
+      const photo = {
+        id: data.public_id.replace(/\//g, '_'),
+        src: data.secure_url,
+        title: document.getElementById('photo-title').value || 'Sans titre',
+        author: document.getElementById('photo-author').value || 'Anonyme',
+        tag: document.getElementById('photo-cat').value
+      };
+
+      await savePhoto(photo);
+      photos.unshift(photo);
+      closeModal();
+      renderGallery();
+      setTimeout(() => document.getElementById('gallery').scrollIntoView({ behavior: 'smooth' }), 200);
+
+    } catch(err) {
+      btn.disabled = false;
+      btn.textContent = 'Publier dans la galerie';
+      alert('❌ Erreur : ' + err.message);
+    }
+  }
+
+  // ── Gallery ──
+  function getFiltered() {
+    return activeFilter === 'all' ? photos : photos.filter(p => p.tag === activeFilter);
+  }
+
+  function renderGallery() {
+    const list = getFiltered();
+    const masonry = document.getElementById('masonry');
+    const empty = document.getElementById('gallery-empty');
+    masonry.innerHTML = '';
+
+    if (list.length === 0) {
+      empty.classList.add('visible');
+      return;
+    }
+    empty.classList.remove('visible');
+
+    list.forEach((p, i) => {
+      const card = document.createElement('div');
+      card.className = 'photo-card reveal';
+      card.innerHTML = `
+        <img class="card-img" src="${p.src}" alt="${p.title}" loading="lazy"/>
+        <div class="photo-info">
+          <div class="photo-author">${p.author}</div>
+          <div class="photo-title">${p.title}</div>
+          <div class="photo-tag-label">${CAT_LABELS[p.tag] || p.tag}</div>
+        </div>
+        <button class="photo-delete" onclick="deletePhoto('${p.id}', event)" title="Supprimer">✕</button>
+      `;
+      card.addEventListener('click', e => {
+        if (e.target.classList.contains('photo-delete')) return;
+        openLightbox(i, list);
+      });
+      masonry.appendChild(card);
+    });
+    observeCards();
+  }
+
+  async function deletePhoto(id, e) {
+    e.stopPropagation();
+    const pwd = prompt('🔒 Mot de passe pour supprimer :');
+    if (pwd === null) return;
+    if (pwd !== '@ALexines86100!') { alert('❌ Mot de passe incorrect.'); return; }
+    if (!confirm('Supprimer cette photo ?')) return;
+    try {
+      await removePhoto(id);
+      photos = photos.filter(p => p.id !== id);
+      renderGallery();
+    } catch(err) {
+      alert('❌ Erreur suppression : ' + err.message);
+    }
+  }
+
+  // ── Lightbox ──
+  function openLightbox(i, list) {
+    currentList = list; currentIndex = i;
+    updateLb();
+    document.getElementById('lightbox').classList.add('open');
+  }
+  function updateLb() {
+    const p = currentList[currentIndex];
+    document.getElementById('lb-img').src = p.src;
+    document.getElementById('lb-author').textContent = p.author;
+    document.getElementById('lb-title').textContent = p.title;
+  }
+  document.getElementById('lb-close').onclick = () => document.getElementById('lightbox').classList.remove('open');
+  document.getElementById('lb-prev').onclick = () => { currentIndex = (currentIndex - 1 + currentList.length) % currentList.length; updateLb(); };
+  document.getElementById('lb-next').onclick = () => { currentIndex = (currentIndex + 1) % currentList.length; updateLb(); };
+  document.getElementById('lightbox').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
+  document.addEventListener('keydown', e => {
+    const lb = document.getElementById('lightbox');
+    if (!lb.classList.contains('open')) return;
+    if (e.key === 'Escape') lb.classList.remove('open');
+    if (e.key === 'ArrowLeft') { currentIndex = (currentIndex - 1 + currentList.length) % currentList.length; updateLb(); }
+    if (e.key === 'ArrowRight') { currentIndex = (currentIndex + 1) % currentList.length; updateLb(); }
+  });
+
+  // ── Filters ──
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      renderGallery();
+    });
+  });
+
+  // ── About ──
+  function openAbout() {
+    document.getElementById('about-overlay').classList.add('open');
+  }
+  function closeAbout() {
+    document.getElementById('about-overlay').classList.remove('open');
+  }
+  document.getElementById('about-overlay').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeAbout();
+  });
+
+  // ── Scroll reveal ──
+  function observeCards() {
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.reveal:not(.visible)').forEach(el => obs.observe(el));
+  }
+
+  // ── Secret tap on logo ──
+  let tapCount = 0;
+  let tapTimer = null;
+  document.getElementById('logo-secret').addEventListener('click', e => {
+    e.preventDefault();
+    tapCount++;
+    clearTimeout(tapTimer);
+    tapTimer = setTimeout(() => { tapCount = 0; }, 3000);
+    if (tapCount >= 5) {
+      tapCount = 0;
+      openModal();
+    }
+  });
+
+  // ── Splash ──
+  function enterSite() {
+    const splash = document.getElementById('splash');
+    splash.classList.add('hide');
+    setTimeout(() => { splash.style.display = 'none'; }, 800);
+    // Auto-start music
+    const audio = document.getElementById('bg-music');
+    const btn = document.getElementById('music-btn');
+    const ripple = document.getElementById('music-ripple');
+    audio.volume = 0.3;
+    audio.play().then(() => {
+      btn.classList.add('playing');
+      ripple.classList.add('active');
+      btn.querySelector('.music-icon').textContent = '॥';
+      isPlaying = true;
+    }).catch(() => {});
+  }
+
+  // ── Music ──
+  let isPlaying = false;
+  function toggleMusic() {
+    const audio = document.getElementById('bg-music');
+    const btn = document.getElementById('music-btn');
+    const ripple = document.getElementById('music-ripple');
+    if (isPlaying) {
+      audio.pause();
+      btn.classList.remove('playing');
+      ripple.classList.remove('active');
+      btn.querySelector('.music-icon').textContent = '♪';
+      isPlaying = false;
+    } else {
+      audio.volume = 0.3;
+      audio.play().then(() => {
+        btn.classList.add('playing');
+        ripple.classList.add('active');
+        btn.querySelector('.music-icon').textContent = '॥';
+        isPlaying = true;
+      }).catch(() => {
+        alert('Appuyez à nouveau pour lancer la musique.');
+      });
+    }
+  }
+
+  // Init
+  loadPhotos();
+  observeCards();
+</script>
+</body>
+</html>
